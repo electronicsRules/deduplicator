@@ -55,13 +55,36 @@ GetOptions(\%o,
     
     'hash-dyna:f',
     'hash-dyna-minsize=s',
+    'hash-dyna-maxsize=s',
     
     'hash-blocks=i',
-    'hash-block-skip=f'
+    'hash-block-skip=f',
+    
+    'prefer-7bit'
 ) or pod2usage();
+$o{$_}=h2n($o{$_}) foreach qw(hash-fixed hash-fixed-offset hash-dyna-minsize hash-dyna-maxsize);
 if ($o{'hash-dyna'}==0) {$o{'hash-dyna'}=5}
-if (!$ARGV[0] || $ARGV[2]) {pod2usage()}
 if (!$ht{$o{'hash'}}) {pod2usage()}
+
+our 
+
+if (-f $ARGV[0] && -r $ARGV[0]) { #Report
+    
+}
+
+sub h2n {
+    my ($str)=@_;
+    $str=~/^([0-9.,]+)([kmgtp]?)/i;
+    my @suffix=('',qw(k m g t p));
+    my $n=$1;
+    my $pf=$2;
+    while ($pf ne $suffix[0]) {
+        shift @postfix;
+        $n*=1024;
+        }
+    return $n;
+}
+
 __END__
 =pod
 
@@ -71,9 +94,9 @@ dedup - Find/Remove duplicate files/folders
 
 =head1 SYNOPSIS
 
-B<dedup> [B<options>] E<lt>B<folderA>E<gt> [B<folderB>]
+B<dedup> [B<options>] [B<folderA>] [B<folderB>]
 
-B<dedup> [B<options>] E<lt>B<report>E<gt> E<lt>B<folderA>E<gt> [B<folderB>]
+B<dedup> [B<options>] E<lt>B<report>E<gt> [B<folderA>] [B<folderB>]
 
  Options:
    --help Show a list of options
@@ -82,7 +105,7 @@ B<dedup> [B<options>] E<lt>B<report>E<gt> E<lt>B<folderA>E<gt> [B<folderB>]
    --dedup (Default) Show/remove duplicates
    --uniq[ue] Show/copy unique files (from A to B, requires two folders)
 
-   --noapply (Default) Report only, do not perform the actions
+   --noapply (Default) Report only, do not perform the actions.
    --a[pply] Perform the actions, if a report is given, will use any answers provided in the report. The user will be queried on any ambiguity
    --q[uiet] (Default if --noapply) If an ambiguity arises, the item is skipped instead of querying the user.
    --i[nteractive] (Default if --apply) Opposite of --quiet and --fatal
@@ -108,7 +131,10 @@ B<dedup> [B<options>] E<lt>B<report>E<gt> E<lt>B<folderA>E<gt> [B<folderB>]
    
    --hash-dyna[=f] (Default 5 but disabled) Percentage of the filesize to hash
    --hash-dyna-minsize=s (Default 8K) Minimum size of dynamic hash segment, if file is smaller than this, whole file is hashed
+   --hash-dyna-maxsize=s (Default 1M) Maximum size of dynamic hash segment
    
    --hash-blocks=i (Disabled by default) Hash N segments of the file, each segment is size/N bytes
    --hash-block-skip=f (Default 1) Multiplier for skip size
+   
+   --prefer-7bit In a conflict between two items, one of which has high-bit characters, prefer the other one
 =cut
